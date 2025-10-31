@@ -79,7 +79,7 @@ lock_button.BorderSizePixel = 0
 lock_button.Font = Enum.Font.GothamBold
 fake_lag_button.Parent = gui
 fake_lag_button.Size = UDim2.new(0, 100, 0, 50)
-fake_lag_button.Position = UDim2.new(0.5, -50, 0.5, 30)
+fake_lag_button.Position = UDim2.new(0.5, -50, 0.5, 60)
 fake_lag_button.Text = "FAKE LAG"
 fake_lag_button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 fake_lag_button.TextColor3 = Color3.fromRGB(0, 0, 0)
@@ -90,22 +90,46 @@ makeDraggable(fake_lag_button)
 makeDraggable(lock_button)
 
 local lock_connection
-local fake_lag_connection
+local fake_lag__velocity_restore = Vector3.new(0, 0, 0)
+local fake_lag_enabled = false
+local fake_lag_cf
+local fakeLagConnection
+local fake_lag_thread
 
 local function toggle_fake_lag()
-	if fake_lag_connection then
-		fake_lag_connection:Disconnect()
-		fake_lag_connection = nil
-	else
-		fake_lag_connection = RunService.RenderStepped:Connect(function()
-			local character = SELF.Character
-			local HRP = character:FindFirstChild("HumanoidRootPart") :: BasePart
-			if not character or not HRP then return end
-			task.wait(0.25)
-			HRP.Anchored = true
-			task.wait(0.25)
-			HRP.Anchored = false
+	local character = SELF.Character
+	if not character then return end
+	local HRP = character:FindFirstChild("HumanoidRootPart")
+	if not HRP then return end
+
+	fake_lag_enabled = not fake_lag_enabled
+
+	if fake_lag_enabled then
+		-- print("Fake lag: ON")
+
+		fake_lag_thread = task.spawn(function()
+			local frozen = false
+			local storedCF = HRP.CFrame
+
+			while fake_lag_enabled and character and HRP do
+				if frozen then
+					storedCF = HRP.CFrame
+				else
+					local freezeCF = storedCF
+					local elapsed = 0
+
+					while fake_lag_enabled and elapsed < 0.1 do
+						HRP.CFrame = freezeCF
+						elapsed += RunService.Heartbeat:Wait()
+					end
+				end
+
+				frozen = not frozen
+				task.wait(0.1)
+			end
 		end)
+	else
+		-- print("Fake lag: OFF")
 	end
 end
 
@@ -133,6 +157,4 @@ lock_button.Activated:Connect(function()
 	toggle_loop_lock()
 end)
 
-fake_lag_button.Activated:Connect(function()
-	toggle_fake_lag()
-end)
+fake_lag_button.Activated:Connect(toggle_fake_lag)
