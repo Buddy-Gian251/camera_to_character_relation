@@ -125,9 +125,9 @@ local function toggle_loop_lock()
 			local HRP = character:FindFirstChild("HumanoidRootPart") :: BasePart
 			if not character or not HRP then return end
 			local cameraPivot = cam.CFrame
-			local x, y, z = cameraPivot:ToEulerAngles()
-			local newPivot = CFrame.new(HRP.Position) * CFrame.Angles(0, y, 0)
-
+			local look = cam.LookVector
+			local yaw = math.atan2(look.X, look.Z)
+			local newPivot = CFrame.new(HRP.Position) * CFrame.Angles(0, yaw, 0)
 			HRP:PivotTo(newPivot)
 		end)
 	end
