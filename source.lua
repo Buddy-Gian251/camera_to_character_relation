@@ -67,19 +67,47 @@ local function makeDraggable(UIItem)
 	end)
 end
 
-local button = Instance.new("TextButton")
-button.Parent = gui
-button.Size = UDim2.new(0, 100, 0, 50)
-button.Position = UDim2.new(0.5, -50, 0.5, 20)
-button.Text = "CFRAME LOCK"
-button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-button.TextColor3 = Color3.fromRGB(0, 0, 0)
-button.BorderSizePixel = 0
-button.Font = Enum.Font.GothamBold
+local lock_button = Instance.new("TextButton")
+local fake_lag_button = Instance.new("TextButton")
+lock_button.Parent = gui
+lock_button.Size = UDim2.new(0, 100, 0, 50)
+lock_button.Position = UDim2.new(0.5, -50, 0.5, 20)
+lock_button.Text = "CFRAME LOCK"
+lock_button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+lock_button.TextColor3 = Color3.fromRGB(0, 0, 0)
+lock_button.BorderSizePixel = 0
+lock_button.Font = Enum.Font.GothamBold
+fake_lag_button.Parent = gui
+fake_lag_button.Size = UDim2.new(0, 100, 0, 50)
+fake_lag_button.Position = UDim2.new(0.5, -50, 0.5, 30)
+fake_lag_button.Text = "FAKE LAG"
+fake_lag_button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+fake_lag_button.TextColor3 = Color3.fromRGB(0, 0, 0)
+fake_lag_button.BorderSizePixel = 0
+fake_lag_button.Font = Enum.Font.GothamBold
 
-makeDraggable(button)
+makeDraggable(fake_lag_button)
+makeDraggable(lock_button)
 
 local lock_connection
+local fake_lag_connection
+
+local function toggle_fake_lag()
+	if fake_lag_connection then
+		fake_lag_connection:Disconnect()
+		fake_lag_connection = nil
+	else
+		fake_lag_connection = RunService.RenderStepped:Connect(function()
+			local character = SELF.Character
+			local HRP = character:FindFirstChild("HumanoidRootPart") :: BasePart
+			if not character or not HRP then return end
+			task.wait(0.25)
+			HRP.Anchored = true
+			task.wait(0.25)
+			HRP.Anchored = false
+		end)
+	end
+end
 
 local function toggle_loop_lock()
 	if lock_connection then
@@ -100,7 +128,11 @@ local function toggle_loop_lock()
 	end
 end
 
-button.Activated:Connect(function()
+lock_button.Activated:Connect(function()
 	if not cam then return end
 	toggle_loop_lock()
+end)
+
+fake_lag_button.Activated:Connect(function()
+	toggle_fake_lag()
 end)
