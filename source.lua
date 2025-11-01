@@ -278,6 +278,8 @@ local toggle_fake_lag = function()
 		local unfreezeDuration = freezeDuration / lagRate
 		local frozen = false
 		local storedCF = HRP.CFrame
+		local storedposvel = HRP.AssemblyLinearVelocity
+		local storedrotvel = HRP.AssemblyAngularVelocity
 		local timer = 0
 		fakeLagConnection = RunService.PreRender:Connect(function(dt)
 			if not HRP or not HRP.Parent then
@@ -291,12 +293,16 @@ local toggle_fake_lag = function()
 			timer += dt
 			if frozen then
 				HRP.CFrame = storedCF
+				HRP.AssemblyLinearVelocity = storedposvel
+				HRP.AssemblyAngularVelocity = storedrotvel
 				if timer >= freezeDuration then
 					timer = 0
 					frozen = false
 				end
 			else
 				storedCF = HRP.CFrame
+				storedposvel = HRP.AssemblyLinearVelocity 
+				storedrotvel = HRP.AssemblyAngularVelocity
 				if timer >= unfreezeDuration then
 					timer = 0
 					frozen = true
