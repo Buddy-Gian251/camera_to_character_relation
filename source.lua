@@ -193,7 +193,7 @@ make_draggable(config_toggle,true,true)
 adjust_layout(config_frame,false,true)
 
 local freezeDuration = 0.20
-local lagRate = 10
+local unfreezeDuration = 0.10
 
 local fl_config_minimized = false
 local lock_connection
@@ -275,7 +275,6 @@ local toggle_fake_lag = function()
 	
 	if fake_lag_enabled then
 		message("Fake Lag", "Enabled", 3)
-		local unfreezeDuration = freezeDuration / lagRate
 		local frozen = false
 		local storedCF = HRP.CFrame
 		local storedposvel = HRP.AssemblyLinearVelocity
@@ -341,8 +340,8 @@ create_config_button("lag interval", freezeDuration, function(new_value)
 	freezeDuration = tonumber(new_value)
 end)
 
-create_config_button("lag rate", lagRate, function(new_value)
-	lagRate = tonumber(new_value)
+create_config_button("lag rest", unfreezeDuration, function(new_value)
+	unfreezeDuration = tonumber(new_value)
 end)
 
 lock_button.Activated:Connect(function()
